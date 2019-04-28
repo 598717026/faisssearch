@@ -58,7 +58,7 @@ class index:
     def getImgaeFeature(self, filename):
         try:
             print(filename)
-            img = cv2.imread(filename, 0)
+            img = cv2.imread(filename.encode("utf-8", "surrogateescape").decode(), 0)
             if self.resizeSize > 0:
                 if img.shape[0] > img.shape[1]:
                     if img.shape[1] > self.resizeSize:
@@ -67,8 +67,8 @@ class index:
                         if img.shape[0] > self.resizeSize:
                             img = cv2.resize(img, (int(img.shape[1] * self.resizeSize / img.shape[0]), self.resizeSize))
             kp, desc = self.detector.detectAndCompute(img, None)
-        except:
-            print("getImgaeFeature except")
+        except Exception as e:
+            print("getImgaeFeature except", e)
             desc = None
         return desc
 
@@ -87,6 +87,7 @@ class index:
         ids = None
         features = np.matrix([])
         for file_name in self.imgList:
+            print(ids_count)
             feature = self.getImgaeFeature(file_name)
             if feature is None:
                 continue
@@ -220,17 +221,16 @@ if __name__ == '__main__':
 
     idxc = index()
     idxc.setFeatureType("sift")
-    idxc.setImageDir("/data/works/faiss/testdata/test/")
+    idxc.setImageDir("/data/lhg_work/booksmaker2test/data/books/test/")
     idxc.setIndexPath("./index")
     idxc.setIdsVectorsPath("./ivpath")
     idxc.setResize(480)
-    # idxc.makeIndex()
-    # idxc.saveIndexDict()
+    idxc.makeIndex()
+    idxc.saveIndexDict()
     idxc.loadIndexFromFile()
     idxc.loadIdsVectorsFromFile()
     t1 = time.time()
-    for i in range(1):
-        result = idxc.search_by_image("/data/works/robot/data/pic/2019-02-25-22-03-03_cover_none.jpg", 5)
+    # result = idxc.search_by_image("/data/works/robot/data/pic/2019-02-25-22-03-03_cover_none.jpg", 5)
     t2 = time.time()
     print("search time:", t2 - t1)
     print(result)
